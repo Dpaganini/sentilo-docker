@@ -1,28 +1,28 @@
 services:
   # databases
-  sentilo-redis:
+  sentilo-redis-2:
     image: redis:${REDIS_VERSION}
-    container_name: sentilo-redis
+    container_name: sentilo-redis-2
     command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--appendonly", "yes"]
     volumes:
       - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf
-      - sentilo-redis-vol:/data
+      - sentilo-redis-vol-2:/data
     ports:
-      - "6379:6379"
+      - "6380:6379"
     networks:
-      - sentilo_network
+      - sentilo_network2
                
-  sentilo-mongodb:
+  sentilo-mongodb2:
     image: mongo:${MONGO_VERSION}
-    container_name: sentilo-mongodb
+    container_name: sentilo-mongodb2
     environment:
       MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
       MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
-      MONGO_INITDB_DATABASE: sentilo
+      MONGO_INITDB_DATABASE: sentilo2
     volumes:
       - ./config/mongo/config/mongod.conf:/etc/mongod/mongod.conf
       - ./config/mongo/docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d/
-      - sentilo-mongo-vol:/data
+      - sentilo-mongo-vol-2:/data
     ports:
       - "27017:27017"
     expose:
@@ -33,12 +33,12 @@ services:
       start_period: 30s
     command: [ "--replSet", "rs_sentilo", "--bind_ip_all" ]
     networks:
-      - sentilo_network
+      - sentilo_network2
 
   # api-server    
-  sentilo-platform-server:
+  sentilo-platform-server2:
     image: sentilo/sentilo-platform-server:${SENTILO_VERSION}
-    container_name: sentilo-platform-server
+    container_name: sentilo-platform-server2
     volumes:
       - ./conf/:/etc/sentilo/
       - ./logs/:/var/log/sentilo/
@@ -49,23 +49,23 @@ services:
       sentilo-catalog-web:
         condition: service_healthy
     networks:
-      - sentilo_network
-  
+      - sentilo_network2
+
   # web-catalog
-  sentilo-catalog-web:
+  sentilo-catalog-web2:
     image: sentilo/sentilo-catalog-web:${SENTILO_VERSION}
-    container_name: sentilo-catalog-web
+    container_name: sentilo-catalog-web2
     ports:
       - "8080:8080"
     depends_on:
-      sentilo-mongodb:
+      sentilo-mongodb2:
         condition: service_healthy
-      sentilo-redis:
+      sentilo-redis2:
         condition: service_started
     environment:
       JAVA_OPTS: "-Dsentilo.multitenant=true -Dspring.profiles.active=dev -Dsentilo.state_page.enabled=true"
     healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://sentilo-catalog-web:8080/sentilo-catalog-web/ || exit 1 
+      test: wget --no-verbose --tries=1 --spider http://sentilo-catalog-web2:8080/sentilo-catalog-web/ || exit 1
       interval: 15s
       timeout: 10s
       retries: 15
@@ -74,41 +74,41 @@ services:
       - ./conf/:/etc/sentilo/
       - ./logs/:/var/log/sentilo/
     networks:
-      - sentilo_network   
+      - sentilo_network2
 
   # agents in general
-  sentilo-agent-alert:
+  sentilo-agent-alert2:
     image: sentilo/sentilo-agent-alert:${SENTILO_VERSION}
-    container_name: sentilo-agent-alert
+    container_name: sentilo-agent-alert2
     volumes:
       - ./conf/:/etc/sentilo/
       - ./logs/:/var/log/sentilo/
     depends_on:
-      sentilo-platform-server:
+      sentilo-platform-server2:
         condition: service_started
-      sentilo-mongodb:
+      sentilo-mongodb2:
         condition: service_healthy
     networks:
-      - sentilo_network
-      
-  sentilo-agent-location-updater:
+      - sentilo_network2
+
+  sentilo-agent-location-updater2:
     image: sentilo/sentilo-agent-location-updater:${SENTILO_VERSION}
-    container_name: sentilo-agent-location-updater
+    container_name: sentilo-agent-location-updater2
     volumes:
       - ./conf/:/etc/sentilo/
       - ./logs/:/var/log/sentilo/
     depends_on:
-      - sentilo-platform-server
+      - sentilo-platform-server2
     networks:
-      - sentilo_network
+      - sentilo_network2
   
 networks:
-  sentilo_network:
-    name: sentilo_network
+  sentilo_network2:
+    name: sentilo_network2
     external: true
 
 volumes:
-  sentilo-mongo-vol:
+  sentilo-mongo-vol-2:
     external: true
-  sentilo-redis-vol:
+  sentilo-redis-vol-2:
     external: true
