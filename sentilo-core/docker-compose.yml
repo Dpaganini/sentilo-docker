@@ -63,7 +63,7 @@ services:
       sentilo-redis:
         condition: service_started
     environment:
-      JAVA_OPTS: "-Dsentilo.multitenant=true -Dspring.profiles.active=dev -Dsentilo.state_page.enabled=true"
+      JAVA_OPTS: "-Dsentilo.multitenant=true -Dspring.profiles.active=dev -Dsentilo.state_page.enabled=true -Duser.timezone=America/Sao_Paulo"
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://sentilo-catalog-web:8080/sentilo-catalog-web/ || exit 1 
       interval: 15s
