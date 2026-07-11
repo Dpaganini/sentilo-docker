@@ -38,6 +38,30 @@ services:
       es01:
         condition: service_healthy
 
+  setup-index-template:
+    image: curlimages/curl:8.5.0
+    container_name: elastic_setup_index_template
+    volumes:
+      - ./elasticsearch/index-templates:/templates:ro
+    environment:
+      ELASTIC_PASSWORD: $ELASTIC_PASSWORD
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Aplicando index template sentilo-ds..."
+        curl -fsS -u "elastic:$$ELASTIC_PASSWORD" \
+          -X PUT "http://es01:9200/_index_template/sentilo-ds" \
+          -H "Content-Type: application/json" \
+          -d @/templates/sentilo-ds.json
+        echo ""
+        echo "Index template aplicado."
+    depends_on:
+      es01:
+        condition: service_healthy
+    networks:
+      - sentilo_network
+    restart: "no"
+
   logstash:
     image: logstash:$ELK_VERSION
     container_name: elastic_logstash
@@ -50,7 +74,9 @@ services:
       LOGSTASH_PASSWORD: $LOGSTASH_PASSWORD
     depends_on:
       es01:
-        condition: service_healthy   
+        condition: service_healthy
+      setup-index-template:
+        condition: service_completed_successfully
     
     networks:
       - sentilo_network

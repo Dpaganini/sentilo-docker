@@ -1,0 +1,19 @@
+{
+  "index_patterns": ["sentilo-ds-*"],
+  "priority": 100,
+  "template": {
+    "mappings": {
+      "properties": {
+        "location_geo": {
+          "type": "geo_point"
+        },
+        "sensor": {
+          "type": "keyword"
+        },
+        "@timestamp": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}
