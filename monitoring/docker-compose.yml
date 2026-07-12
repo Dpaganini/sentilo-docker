@@ -3,7 +3,7 @@ version: '3'
 services:
   prometheus:
     image: prom/prometheus:v2.49.1 
-    container_name: monitoring_prometheus
+    container_name: monitoring_prometheus2
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
@@ -14,13 +14,13 @@ services:
     ports:
       - 9091:9090
     networks:
-      - sentilo_network
+      - sentilo_network2
     volumes:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yml
 
   node-exporter: 
     image: prom/node-exporter:v1.7.0
-    container_name: monitoring_node-exporter 
+    container_name: monitoring_node-exporter2
     restart: unless-stopped 
     volumes: 
       - /proc:/host/proc:ro 
@@ -32,15 +32,15 @@ services:
       - '--path.sysfs=/host/sys' 
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)' 
     networks: 
-      - sentilo_network
+      - sentilo_network2
 
   cadvisor: 
     image: gcr.io/cadvisor/cadvisor:latest 
-    container_name: monitoring_cadvisor 
+    container_name: monitoring_cadvisor2
     ports: 
       - 8082:8080 
     networks: 
-      - sentilo_network
+      - sentilo_network2
     volumes: 
       - /:/rootfs:ro 
       - /var/run:/var/run:rw 
@@ -49,28 +49,28 @@ services:
 
   grafana:
     image: grafana/grafana:10.2.3
-    container_name: monitoring_grafana
+    container_name: monitoring_grafana2
     volumes:
-      - grafana-data:/var/lib/grafana
+      - grafana-data-2:/var/lib/grafana
       - ./grafana.ini:/etc/grafana/grafana.ini
     ports:
       - 3000:3000
     networks:
-      - sentilo_network
+      - sentilo_network2
 
   elasticsearch-exporter:
     image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
-    container_name: monitoring_elasticsearch-exporter
+    container_name: monitoring_elasticsearch-exporter2
     command:
      - '--es.uri=http://${ELASTIC_USER}:${ELASTIC_PASSWORD}@es01:9200'
     networks:
-      - sentilo_network
+      - sentilo_network2
 
 networks:
-  sentilo_network:
-    name: sentilo_network
+  sentilo_network2:
+    name: sentilo_network2
     external: true
 
 volumes:
-  grafana-data:
+  grafana-data-2:
     driver: local

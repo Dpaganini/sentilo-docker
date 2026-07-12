@@ -25,8 +25,8 @@ fi
 
 # Remove previous images
 echo "Removing previous images for Sentilo v$SENTILO_VERSION docker"
-docker compose rm -fsv
-rm -rf ./logs
+#docker compose rm -fsv
+#rm -rf ./logs
 
 sleep 2
 
